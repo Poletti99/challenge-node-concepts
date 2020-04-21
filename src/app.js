@@ -19,6 +19,7 @@ function checkIsValidId(request, response, next) {
     return response.status(400).json({ error: "Não é um id valido" });
   }
 
+  request.repositoryIndex = repoIndex;
   return next();
 }
 
@@ -40,41 +41,38 @@ app.post("/repositories", (request, response) => {
 });
 
 app.put("/repositories/:id", (request, response) => {
-  const { id } = request.params;
+  const { repositoryIndex } = request;
   const { title, url, techs } = request.body;
-  const repoIndex = repositories.findIndex((repo) => repo.id === id);
 
   const newRepository = {
-    title: title || repositories[repoIndex].title,
-    url: url || repositories[repoIndex].url,
-    techs: techs || repositories[repoIndex].techs,
-    id: repositories[repoIndex].id,
-    likes: repositories[repoIndex].likes,
+    title: title || repositories[repositoryIndex].title,
+    url: url || repositories[repositoryIndex].url,
+    techs: techs || repositories[repositoryIndex].techs,
+    id: repositories[repositoryIndex].id,
+    likes: repositories[repositoryIndex].likes,
   };
 
-  repositories.splice(repoIndex, 1, newRepository);
+  repositories.splice(repositoryIndex, 1, newRepository);
   return response.json(newRepository);
 });
 
 app.delete("/repositories/:id", (request, response) => {
-  const { id } = request.params;
-  const repoIndex = repositories.findIndex((repo) => repo.id === id);
+  const { repositoryIndex } = request;
 
-  repositories.splice(repoIndex, 1);
+  repositories.splice(repositoryIndex, 1);
 
   return response.status(204).json();
 });
 
 app.post("/repositories/:id/like", (request, response) => {
-  const { id } = request.params;
-  const repoIndex = repositories.findIndex((repo) => repo.id === id);
-  const repository = repositories[repoIndex];
+  const { repositoryIndex } = request;
+  const repository = repositories[repositoryIndex];
   const updatedRepository = {
     ...repository,
     likes: repository.likes + 1,
   };
 
-  repositories.splice(repoIndex, 1, updatedRepository);
+  repositories.splice(repositoryIndex, 1, updatedRepository);
 
   return response.json(updatedRepository);
 });
